@@ -1,0 +1,22 @@
+.content {
+	width: 100%;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+}
+
+.videos {
+	min-height: 500px;
+	width: 100%;
+	display: flex;
+	gap: 12px;
+
+	& > * {
+		flex: 1 0 0;
+	}
+}
+
+.fit-card {
+	height: fit-content;
+}

@@ -1,0 +1,103 @@
+<div class="container">
+	<video
+		#videoEl
+		class="video"
+		[src]="src"
+		controls
+	>
+	</video>
+	<div class="buttons">
+		<div class="button-row">
+			<input
+				type="file"
+				class="file-input"
+				(change)="fileSelect($event)"
+			>
+			<mat-form-field appearance="outline" class="fps-input">
+				<mat-label>FPS</mat-label>
+				<input matInput [ngModel]="fps()" (ngModelChange)="fps.set($event)" type="number">
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>Video Time (seconds)</mat-label>
+				<input matInput [ngModel]="currentSeconds()" (ngModelChange)="currentSeconds.set($event)" type="number">
+			</mat-form-field>
+			<button mat-flat-button color="accent" (click)="jumpTo(currentSeconds())">Jump to Time</button>
+			<button mat-flat-button
+			        color="accent"
+			        (click)="addSplit()"
+			>Add Split
+			</button>
+		</div>
+		<div class="button-row">
+			<div></div>
+			<div></div>
+<!--			<button-->
+<!--				mat-flat-button-->
+<!--				color="accent"-->
+<!--				(click)="playPause()"-->
+<!--				[disabled]="!src"-->
+<!--			>-->
+<!--				<ng-container *ngIf="!playing()">-->
+<!--					<mat-icon>play_arrow</mat-icon>-->
+<!--				</ng-container>-->
+<!--				<ng-container *ngIf="playing()">-->
+<!--					<mat-icon>pause</mat-icon>-->
+<!--				</ng-container>-->
+<!--			</button>-->
+			<div></div>
+			<div></div>
+		</div>
+		<div class="button-row">
+			<button mat-flat-button color="accent" (click)="skipFrames(-10)">-10F</button>
+			<button mat-flat-button color="accent" (click)="skipFrames(-5)">-5F</button>
+			<button mat-flat-button color="accent" (click)="skipFrames(-1)">-1F</button>
+			<button mat-flat-button color="accent" (click)="skipFrames(1)">+1F</button>
+			<button mat-flat-button color="accent" (click)="skipFrames(5)">+5F</button>
+			<button mat-flat-button color="accent" (click)="skipFrames(10)">+10F</button>
+		</div>
+		<div class="button-row">
+			<button mat-flat-button color="accent" (click)="skipSeconds(-7)">-7s</button>
+			<button mat-flat-button color="accent" (click)="skipSeconds(-4)">-4s</button>
+			<button mat-flat-button color="accent" (click)="skipSeconds(-1)">-1s</button>
+			<button mat-flat-button color="accent" (click)="skipSeconds(1)">+1s</button>
+			<button mat-flat-button color="accent" (click)="skipSeconds(4)">+4s</button>
+			<button mat-flat-button color="accent" (click)="skipSeconds(7)">+7s</button>
+		</div>
+	</div>
+	<mat-divider></mat-divider>
+	<div class="splits">
+		<div class="splits-title">
+			<h2>Splits</h2>
+			<button mat-flat-button color="accent" (click)="exportSplits()">Copy to Clipboard</button>
+			<button mat-flat-button color="accent" (click)="importSplits()">Import From Clipboard</button>
+			<pre>{{splits?.[0]?.timestamp | timeDisplay:splits?.[(splits?.length ?? 1) - 1]?.timestamp}}</pre>
+		</div>
+		<div
+			*ngFor="let split of splits; index as i"
+			class="split"
+			[class.current]="i === currentSplit"
+		>
+			<mat-form-field appearance="outline">
+				<mat-label>Video Time (seconds)</mat-label>
+				<input matInput [(ngModel)]="split.timestamp" type="number">
+			</mat-form-field>
+			<button
+				mat-flat-button
+				color="accent"
+				(click)="jumpTo(split.timestamp)"
+			>
+				Jump to Time
+			</button>
+			<button mat-icon-button (click)="removeSplit(i)">
+				<mat-icon>delete</mat-icon>
+			</button>
+			<div class="diff" *ngIf="otherSplits.length === splits.length">
+				<app-diff
+					[splits1]="splits"
+					[splits2]="otherSplits"
+					[index]="i"
+				></app-diff>
+			</div>
+		</div>
+	</div>
+</div>
