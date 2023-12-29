@@ -1,8 +1,9 @@
 <div
-	class="diff-box"
-	*ngIf="splits1 | diff:splits2:index as diff"
+	class="diff-box large-text"
+	*ngIf="diff"
 	[class.smaller]="diff < 0"
 >
 	<ng-container *ngIf="diff > 0">+</ng-container>
-	{{diff | number}}
+	<ng-container *ngIf="diff < 0">-</ng-container>
+	{{diff | absolute | number}}
 </div>

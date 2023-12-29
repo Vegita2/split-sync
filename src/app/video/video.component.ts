@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, ElementRef, EventEmitter, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgForOf, NgIf } from '@angular/common';
@@ -7,9 +7,14 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { Subject } from 'rxjs';
-import { TimeDisplayPipe } from './time-display.pipe';
+import { TimeDisplayPipe } from '../pipes/time-display.pipe';
 import { DiffComponent } from './diff/diff.component';
-import { createInvalidObservableTypeError } from 'rxjs/internal/util/throwUnobservableError';
+import { MatCardModule } from '@angular/material/card';
+import { SplitsTimePipe } from '../pipes/splits-time.pipe';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { SplitTimePipe } from '../pipes/split-time.pipe';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CurrentSplitPipe } from '../pipes/current-split.pipe';
 
 export interface Split {
 	timestamp: number;
@@ -34,6 +39,13 @@ export enum VideoEvent {
 		MatDividerModule,
 		TimeDisplayPipe,
 		DiffComponent,
+		MatCardModule,
+		SplitsTimePipe,
+		CdkDropList,
+		CdkDrag,
+		CdkDragHandle,
+		SplitTimePipe,
+		MatSlideToggleModule,
 	],
 	templateUrl: './video.component.html',
 	styleUrl: './video.component.scss',
@@ -43,20 +55,35 @@ export class VideoComponent implements OnInit {
 	@ViewChild('videoEl') video!: ElementRef<HTMLVideoElement>;
 
 	src: any = '';
-	text = '';
 
 	fps = signal(60);
 	currentSeconds = signal(0);
+	noSyncCurrentSplit = signal(-1);
 	playing = signal(false);
 
+	private _splits: Split[] = [];
+
+	get splits() {
+		return this._splits;
+	}
+
 	@Input()
-	splits: Split[] = [];
+	set splits(val: Split[]) {
+		this._splits = val;
+		this.splitsChange.emit(this.splits);
+	}
 
 	@Input()
 	otherSplits: Split[] = [];
 
 	@Output()
 	splitsChange = new EventEmitter<Split[]>();
+
+	@Input()
+	sync = false;
+
+	@Output()
+	syncChange = new EventEmitter<boolean>();
 
 	@Input()
 	events = new Subject<VideoEvent>();
@@ -67,7 +94,8 @@ export class VideoComponent implements OnInit {
 	constructor(
 		private snackbar: MatSnackBar,
 		private ref: ChangeDetectorRef,
-	) {}
+	) {
+	}
 
 	ngOnInit() {
 		this.splitsChange.emit(this.splits);
@@ -95,20 +123,23 @@ export class VideoComponent implements OnInit {
 			this.events.next(VideoEvent.SEEKED);
 		};
 
+		const splitPipe = new CurrentSplitPipe();
 		const updateCurrentFrame: VideoFrameRequestCallback = (_, meta) => {
 			this.currentSeconds.set(video.currentTime);
+			const index = splitPipe.transform(this.splits, this.currentSeconds());
+			this.noSyncCurrentSplit.set(index);
 			this.ref.detectChanges();
 			video.requestVideoFrameCallback(updateCurrentFrame);
 		};
 
 		video.requestVideoFrameCallback(updateCurrentFrame);
-		// await new Promise(res => setTimeout(res, 10));
 	}
 
 	async readFile(file: File) {
 		const reader = new FileReader();
 		const promise = new Promise<string | ArrayBuffer>((res, rej) => {
 			reader.onloadend = event => {
+				console.log(file.type);
 				const arrayBuffer = event.target!.result;
 				const fileType = 'video/mpeg';
 				const blob = new Blob([arrayBuffer as any], { type: fileType });
@@ -129,20 +160,8 @@ export class VideoComponent implements OnInit {
 		this.skipSeconds(this.framesToSeconds(count));
 	}
 
-	secondsToFrames(seconds: number = this.video.nativeElement.currentTime) {
-		return Math.round(seconds * this.fps());
-	}
-
 	framesToSeconds(frames: number) {
 		return frames / this.fps();
-	}
-
-	playPause() {
-		if (this.playing()) {
-			this.video.nativeElement.pause();
-		} else {
-			this.video.nativeElement.play();
-		}
 	}
 
 	jumpTo(seconds: number) {
@@ -153,11 +172,21 @@ export class VideoComponent implements OnInit {
 		const newSplit: Split = {
 			timestamp: this.video?.nativeElement?.currentTime ?? 0,
 		};
-		this.splits.push(newSplit);
+		this.splits = [...this.splits, newSplit];
 	}
 
 	removeSplit(index: number) {
-		this.splits.splice(index, 1);
+		this.splits = [...this.splits.slice(0, index), ...this.splits.slice(index + 1)];
+
+	}
+
+	splitsChanged() {
+		this.splits = [...this.splits];
+	}
+
+	moveSplits(event: CdkDragDrop<Split[]>) {
+		moveItemInArray(this.splits, event.previousIndex, event.currentIndex);
+		this.splitsChanged();
 	}
 
 	async exportSplits() {
@@ -171,6 +200,5 @@ export class VideoComponent implements OnInit {
 		this.splitsChange.emit(this.splits);
 	}
 
-	protected readonly createInvalidObservableTypeError = createInvalidObservableTypeError;
-	protected readonly Input = Input;
+
 }

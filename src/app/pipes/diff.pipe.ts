@@ -1,10 +1,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Split } from '../video.component';
+import { Split } from '../video/video.component';
 
 @Pipe({
 	name: 'diff',
 	standalone: true,
-	pure: false
 })
 export class DiffPipe implements PipeTransform {
 

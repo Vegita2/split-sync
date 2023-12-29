@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { Split, VideoComponent, VideoEvent } from './video/video.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subject } from 'rxjs';
 
 @Component({
@@ -19,6 +19,8 @@ export class AppComponent implements OnInit {
 	@ViewChild('vid1') vid1!: VideoComponent;
 	@ViewChild('vid2') vid2!: VideoComponent;
 
+
+	sync = false;
 	title = 'speedrun-timing-tool';
 
 	events1 = new Subject<VideoEvent>();
@@ -70,6 +72,10 @@ export class AppComponent implements OnInit {
 	}
 
 	private async syncVids(v1: VideoComponent, v2: VideoComponent) {
+		if (!this.sync) {
+			this.currentSplit = -1;
+			return;
+		}
 		const currTime = v1.currentSeconds();
 		let bestIndex = 0;
 		for (let i = 0; i < v1.splits.length; i++) {
@@ -96,7 +102,7 @@ export class AppComponent implements OnInit {
 			v1.video.nativeElement.pause();
 		}
 		v2.video.nativeElement.currentTime = v2.splits[bestIndex - 1].timestamp + splitDiff;
-		await new Promise(res => setTimeout(res, 200));
+		await new Promise(res => setTimeout(res, 600));
 		if (shouldPlay) {
 			await v1.video.nativeElement.play();
 		}

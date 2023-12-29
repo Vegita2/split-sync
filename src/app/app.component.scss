@@ -7,16 +7,11 @@
 }
 
 .videos {
-	min-height: 500px;
-	width: 100%;
+	//width: 100%;
 	display: flex;
-	gap: 12px;
+	gap: 8px;
 
 	& > * {
 		flex: 1 0 0;
 	}
-}
-
-.fit-card {
-	height: fit-content;
 }
