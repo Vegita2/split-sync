@@ -91,8 +91,22 @@
 					</button>
 					<mat-form-field appearance="outline">
 						<mat-label>Video Time (seconds)</mat-label>
-						<input matInput [(ngModel)]="split.timestamp" type="number" (ngModelChange)="splitsChanged()">
+						<input
+							matInput
+							[(ngModel)]="split.timestamp"
+							type="number"
+							(ngModelChange)="splitsChanged()"
+						>
 					</mat-form-field>
+					<div
+						class="warning"
+						*ngIf="i >= 1 && split.timestamp < splits[i - 1].timestamp"
+						matTooltip="Time is before previous split starts. Is not possible"
+					>
+						<mat-icon>
+							warning
+						</mat-icon>
+					</div>
 					<button
 						*ngIf="i >= 1"
 						mat-flat-button

@@ -15,6 +15,7 @@ import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } fro
 import { SplitTimePipe } from '../pipes/split-time.pipe';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CurrentSplitPipe } from '../pipes/current-split.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export interface Split {
 	timestamp: number;
@@ -46,6 +47,7 @@ export enum VideoEvent {
 		CdkDragHandle,
 		SplitTimePipe,
 		MatSlideToggleModule,
+		MatTooltipModule,
 	],
 	templateUrl: './video.component.html',
 	styleUrl: './video.component.scss',
