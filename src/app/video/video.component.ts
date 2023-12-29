@@ -199,7 +199,6 @@ export class VideoComponent implements OnInit {
 	async importSplits() {
 		const text = await navigator.clipboard.readText();
 		this.splits = JSON.parse(text);
-		this.splitsChange.emit(this.splits);
 	}
 
 

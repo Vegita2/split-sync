@@ -8,7 +8,7 @@ import { Split } from '../video/video.component';
 export class SplitTimePipe implements PipeTransform {
 
 	transform(splits: Split[], index: number): number {
-		if (!splits || splits.length <= 1) {
+		if (!splits || splits.length <= 1 || index < 1) {
 			return NaN;
 		}
 

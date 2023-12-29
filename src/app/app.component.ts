@@ -8,6 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subject } from 'rxjs';
 
+interface StoreableData {
+	sync: boolean;
+	splits1: Split[];
+	splits2: Split[];
+}
+
 @Component({
 	selector: 'app-root',
 	standalone: true,
@@ -15,7 +21,7 @@ import { Subject } from 'rxjs';
 	templateUrl: './app.component.html',
 	styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, StoreableData {
 	@ViewChild('vid1') vid1!: VideoComponent;
 	@ViewChild('vid2') vid2!: VideoComponent;
 
@@ -28,27 +34,31 @@ export class AppComponent implements OnInit {
 
 	currentSplit = -1;
 
-	splits1: Split[] = [
-		{ timestamp: 1498.649134 },
-		{ timestamp: 1629.863775 },
-		{ timestamp: 1679.474289 },
-		{ timestamp: 1878.689890 },
-		{ timestamp: 2038.429238 },
-		{ timestamp: 2084.592541 },
-		{ timestamp: 2216.542981 },
-	];
+	splits1: Split[] = [];
 
-	splits2: Split[] = [
-		{ timestamp: 18.1606280 },
-		{ timestamp: 149.221314 },
-		{ timestamp: 196.911978 },
-		{ timestamp: 392.569944 },
-		{ timestamp: 554.925216 },
-		{ timestamp: 602.423572 },
-		{ timestamp: 735.444783 },
-	];
+	splits2: Split[] = [];
 
 	ngOnInit() {
+
+		const storageKey = 'data';
+		window.onbeforeunload = () => {
+			const toSave: StoreableData = {
+				sync: this.sync,
+				splits1: this.splits1,
+				splits2: this.splits2,
+			};
+			localStorage.setItem(storageKey, JSON.stringify(toSave));
+		};
+
+		let storedData: Partial<StoreableData> = {};
+		try {
+			const storedDataString = localStorage.getItem(storageKey);
+			storedData = JSON.parse(storedDataString!);
+			Object.assign(this, storedData);
+		} catch (e) {
+			console.error(e);
+		}
+
 		this.events1.subscribe(v => {
 			switch (v) {
 				case VideoEvent.PLAYED:
