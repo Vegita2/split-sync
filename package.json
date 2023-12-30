@@ -1,5 +1,5 @@
 {
-  "name": "speedrun-timing-tool",
+  "name": "split-sync",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",

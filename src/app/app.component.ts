@@ -27,7 +27,7 @@ export class AppComponent implements OnInit, StoreableData {
 
 
 	sync = false;
-	title = 'speedrun-timing-tool';
+	title = 'split-sync';
 
 	events1 = new Subject<VideoEvent>();
 	events2 = new Subject<VideoEvent>();
