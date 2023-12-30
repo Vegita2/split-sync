@@ -78,7 +78,7 @@
 				<div
 					*ngFor="let split of splits; index as i"
 					class="split"
-					[class.current]="i === currentSplit || i === noSyncCurrentSplit()"
+					[class.current]="i === currentSplit || (currentSplit === -1 && i === noSyncCurrentSplit())"
 					cdkDrag
 				>
 					<div class="drag-handle-space" cdkDragHandle>

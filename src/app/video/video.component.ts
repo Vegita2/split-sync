@@ -141,10 +141,8 @@ export class VideoComponent implements OnInit {
 		const reader = new FileReader();
 		const promise = new Promise<string | ArrayBuffer>((res, rej) => {
 			reader.onloadend = event => {
-				console.log(file.type);
 				const arrayBuffer = event.target!.result;
-				const fileType = 'video/mpeg';
-				const blob = new Blob([arrayBuffer as any], { type: fileType });
+				const blob = new Blob([arrayBuffer as any], { type: file.type });
 				const src = URL.createObjectURL(blob);
 				res(src);
 			};

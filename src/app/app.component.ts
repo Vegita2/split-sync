@@ -38,6 +38,8 @@ export class AppComponent implements OnInit, StoreableData {
 
 	splits2: Split[] = [];
 
+	private timeout = -1;
+
 	ngOnInit() {
 
 		const storageKey = 'data';
@@ -86,6 +88,7 @@ export class AppComponent implements OnInit, StoreableData {
 			this.currentSplit = -1;
 			return;
 		}
+		clearTimeout(this.timeout);
 		const currTime = v1.currentSeconds();
 		let bestIndex = 0;
 		for (let i = 0; i < v1.splits.length; i++) {
@@ -112,7 +115,9 @@ export class AppComponent implements OnInit, StoreableData {
 			v1.video.nativeElement.pause();
 		}
 		v2.video.nativeElement.currentTime = v2.splits[bestIndex - 1].timestamp + splitDiff;
-		await new Promise(res => setTimeout(res, 600));
+		await new Promise(res => {
+			this.timeout = setTimeout(res, 600);
+		});
 		if (shouldPlay) {
 			await v1.video.nativeElement.play();
 		}
